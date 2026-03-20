@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>통합과학 - 원소의 구성과 규칙성</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            scroll-behavior: smooth;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+
+        .dark .hero-gradient {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+        }
+
+        /* 18열 표준 주기율표 그리드 */
+        .element-grid {
+            display: grid;
+            grid-template-columns: repeat(18, minmax(40px, 1fr));
+            gap: 4px;
+        }
+
+        .element-box {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        .element-box:hover {
+            transform: scale(1.15);
+            z-index: 20;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            outline: 2px solid white;
+        }
+
+        .element-num {
+            font-size: 0.6rem;
+            position: absolute;
+            top: 2px;
+            left: 4px;
+            opacity: 0.7;
+        }
+
+        .element-symbol {
+            font-size: 1rem;
+            margin-top: 4px;
+        }
+
+        /* 주기율표 카테고리별 색상 (라이트 모드) */
+        .color-alkali { background-color: #f87171; color: white; }
+        .color-alkaline-earth { background-color: #fb923c; color: white; }
+        .color-transition { background-color: #cbd5e1; color: #334155; }
+        .color-metalloid { background-color: #10b981; color: white; }
+        .color-halogen { background-color: #fbbf24; color: black; }
+        .color-noble { background-color: #a78bfa; color: white; }
+        .color-metal { background-color: #60a5fa; color: white; }
+        .color-nonmetal { background-color: #4ade80; color: white; }
+        .color-empty { background-color: transparent; border: none; cursor: default; }
+
+        /* 다크 모드 시 원소 박스 미세 조정 */
+        .dark .element-box { border-color: rgba(255,255,255,0.1); }
+        .dark .color-transition { background-color: #334155; color: #cbd5e1; }
+        .dark .color-empty { background-color: transparent; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-gray-100">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm transition-colors">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-blue-600 dark:text-blue-400"><i class="fas fa-atom mr-2"></i>통합과학</span>
+                </div>
+                <div class="flex items-center space-x-4 md:space-x-8">
+                    <div class="hidden md:flex space-x-8 font-medium">
+                        <a href="#origin" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">원소의 기원</a>
+                        <a href="#periodic" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">주기율표</a>
+                        <a href="#groups" class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">주요 원소군</a>
+                    </div>
+                    <!-- Theme Toggle Button -->
+                    <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-slate-800 text-gray-500 dark:text-gray-400 hover:ring-2 hover:ring-blue-400 transition-all">
+                        <i id="theme-toggle-dark-icon" class="hidden fas fa-moon"></i>
+                        <i id="theme-toggle-light-icon" class="hidden fas fa-sun"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero-gradient pt-32 pb-20 text-white text-center px-4 transition-all">
+        <h1 class="text-4xl md:text-6xl font-extrabold mb-6">원소의 규칙성과 주기율표</h1>
+        <p class="text-xl md:text-2xl max-w-3xl mx-auto opacity-90 mb-10">
+            현대 주기율표의 구조를 통해 원소들이 가진 놀라운 규칙성을 발견해 봅시다.
+        </p>
+        <div class="flex justify-center gap-4">
+            <a href="#periodic" class="bg-white text-blue-700 px-8 py-3 rounded-full font-bold text-lg hover:bg-blue-50 transition-colors shadow-lg dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500">
+                주기율표 탐색
+            </a>
+        </div>
+    </header>
+
+    <!-- 1. 원소의 기원 -->
+    <section id="origin" class="py-16 max-w-7xl mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold mb-4">1. 원소의 탄생 배경</h2>
+            <p class="text-gray-600 dark:text-gray-400">우주와 별의 역사 속에서 원소들이 어떻게 생성되었는지 복습해 봅시다.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-blue-50 dark:bg-slate-800 p-6 rounded-xl border-l-4 border-blue-500 shadow-sm">
+                <h3 class="font-bold text-blue-800 dark:text-blue-300 mb-2">빅뱅 (Big Bang)</h3>
+                <p class="text-sm text-gray-700 dark:text-gray-300">수소($H$), 헬륨($He$) 탄생</p>
+            </div>
+            <div class="bg-yellow-50 dark:bg-slate-800 p-6 rounded-xl border-l-4 border-yellow-500 shadow-sm">
+                <h3 class="font-bold text-yellow-800 dark:text-yellow-300 mb-2">별의 내부 (Fusion)</h3>
+                <p class="text-sm text-gray-700 dark:text-gray-300">탄소($C$)부터 철($Fe$)까지 탄생</p>
+            </div>
+            <div class="bg-red-50 dark:bg-slate-800 p-6 rounded-xl border-l-4 border-red-500 shadow-sm">
+                <h3 class="font-bold text-red-800 dark:text-red-300 mb-2">초신성 폭발 (Supernova)</h3>
+                <p class="text-sm text-gray-700 dark:text-gray-300">철보다 무거운 원소들 탄생</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. 인터렉티브 주기율표 -->
+    <section id="periodic" class="py-20 bg-gray-100 dark:bg-slate-800/50 transition-colors">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold mb-4">2. 현대 주기율표 (1~4주기 마스터)</h2>
+                <p class="text-gray-600 dark:text-gray-400">표준 18족 체계로 배열된 원소들입니다. 각 칸을 클릭해 보세요.</p>
+            </div>
+
+            <!-- Periodic Table Visualization -->
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-2xl overflow-x-auto transition-colors">
+                <div class="element-grid" id="periodicTable">
+                    <!-- JS logic will populate this -->
+                </div>
+                
+                <!-- 범례 (Legend) -->
+                <div class="mt-10 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 text-xs font-medium">
+                    <div class="flex items-center"><span class="w-4 h-4 color-alkali mr-2 rounded shadow-sm"></span>알칼리 금속</div>
+                    <div class="flex items-center"><span class="w-4 h-4 color-alkaline-earth mr-2 rounded shadow-sm"></span>알칼리 토금속</div>
+                    <div class="flex items-center"><span class="w-4 h-4 color-transition mr-2 rounded shadow-sm"></span>전이 금속</div>
+                    <div class="flex items-center"><span class="w-4 h-4 color-metal mr-2 rounded shadow-sm"></span>기타 금속</div>
+                    <div class="flex items-center"><span class="w-4 h-4 color-metalloid mr-2 rounded shadow-sm"></span>준금속</div>
+                    <div class="flex items-center"><span class="w-4 h-4 color-nonmetal mr-2 rounded shadow-sm"></span>기타 비금속</div>
+                    <div class="flex items-center"><span class="w-4 h-4 color-halogen mr-2 rounded shadow-sm"></span>할로젠</div>
+                    <div class="flex items-center"><span class="w-4 h-4 color-noble mr-2 rounded shadow-sm"></span>비활성 기체</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. 주요 원소군 -->
+    <section id="groups" class="py-20 max-w-7xl mx-auto px-4">
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border-t-8 border-red-400 transition-colors">
+                <h3 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">알칼리 금속 특징</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">주기율표의 1족(수소 제외) 원소들로, 원자가 전자 수가 1개입니다.</p>
+                <div class="space-y-2">
+                    <div class="bg-red-50 dark:bg-slate-700/50 p-3 rounded text-sm dark:text-gray-200">물과 반응하여 수소 기체를 발생시키고 수용액은 염기성을 띱니다.</div>
+                    <div class="bg-red-50 dark:bg-slate-700/50 p-3 rounded text-sm dark:text-gray-200">반응성: $Li < Na < K < Rb < Cs < Fr$ 순으로 증가합니다.</div>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border-t-8 border-yellow-400 transition-colors">
+                <h3 class="text-2xl font-bold text-yellow-600 dark:text-yellow-400 mb-4">할로젠 특징</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">주기율표의 17족 원소들로, 원자가 전자 수가 7개입니다.</p>
+                <div class="space-y-2">
+                    <div class="bg-yellow-50 dark:bg-slate-700/50 p-3 rounded text-sm dark:text-gray-200">금속, 수소와 반응을 잘 하며 2원자 분자($X_2$) 상태로 존재합니다.</div>
+                    <div class="bg-yellow-50 dark:bg-slate-700/50 p-3 rounded text-sm dark:text-gray-200">반응성: $F > Cl > Br > I$ 순으로 증가합니다. (알칼리와 반대)</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 py-10 text-center dark:bg-black">
+        <p>© 2024 통합과학 인터렉티브 원소 수업 도구</p>
+    </footer>
+
+    <!-- Modal -->
+    <div id="elementModal" class="modal" onclick="closeModal()">
+        <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl max-w-sm w-full mx-4 shadow-2xl relative transition-colors" onclick="event.stopPropagation()">
+            <div id="modalContent"></div>
+            <button onclick="closeModal()" class="mt-8 w-full bg-blue-600 text-white py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors dark:bg-blue-500">확인</button>
+        </div>
+    </div>
+
+    <script>
+        // 원소 데이터 1~36
+        const elements = [
+            { n: 1, s: "H", name: "수소", cat: "nonmetal", group: 1, period: 1 },
+            { n: 2, s: "He", name: "헬륨", cat: "noble", group: 18, period: 1 },
+            { n: 3, s: "Li", name: "리튬", cat: "alkali", group: 1, period: 2 },
+            { n: 4, s: "Be", name: "베릴륨", cat: "alkaline-earth", group: 2, period: 2 },
+            { n: 5, s: "B", name: "붕소", cat: "metalloid", group: 13, period: 2 },
+            { n: 6, s: "C", name: "탄소", cat: "nonmetal", group: 14, period: 2 },
+            { n: 7, s: "N", name: "질소", cat: "nonmetal", group: 15, period: 2 },
+            { n: 8, s: "O", name: "산소", cat: "nonmetal", group: 16, period: 2 },
+            { n: 9, s: "F", name: "플루오린", cat: "halogen", group: 17, period: 2 },
+            { n: 10, s: "Ne", name: "네온", cat: "noble", group: 18, period: 2 },
+            { n: 11, s: "Na", name: "나트륨", cat: "alkali", group: 1, period: 3 },
+            { n: 12, s: "Mg", name: "마그네슘", cat: "alkaline-earth", group: 2, period: 3 },
+            { n: 13, s: "Al", name: "알루미늄", cat: "metal", group: 13, period: 3 },
+            { n: 14, s: "Si", name: "규소", cat: "metalloid", group: 14, period: 3 },
+            { n: 15, s: "P", name: "인", cat: "nonmetal", group: 15, period: 3 },
+            { n: 16, s: "S", name: "황", cat: "nonmetal", group: 16, period: 3 },
+            { n: 17, s: "Cl", name: "염소", cat: "halogen", group: 17, period: 3 },
+            { n: 18, s: "Ar", name: "아르곤", cat: "noble", group: 18, period: 3 },
+            { n: 19, s: "K", name: "칼륨", cat: "alkali", group: 1, period: 4 },
+            { n: 20, s: "Ca", name: "칼슘", cat: "alkaline-earth", group: 2, period: 4 },
+            { n: 21, s: "Sc", name: "스칸듐", cat: "transition", group: 3, period: 4 },
+            { n: 22, s: "Ti", name: "티타늄", cat: "transition", group: 4, period: 4 },
+            { n: 23, s: "V", name: "바나듐", cat: "transition", group: 5, period: 4 },
+            { n: 24, s: "Cr", name: "크로뮴", cat: "transition", group: 6, period: 4 },
+            { n: 25, s: "Mn", name: "망가니즈", cat: "transition", group: 7, period: 4 },
+            { n: 26, s: "Fe", name: "철", cat: "transition", group: 8, period: 4 },
+            { n: 27, s: "Co", name: "코발트", cat: "transition", group: 9, period: 4 },
+            { n: 28, s: "Ni", name: "니켈", cat: "transition", group: 10, period: 4 },
+            { n: 29, s: "Cu", name: "구리", cat: "transition", group: 11, period: 4 },
+            { n: 30, s: "Zn", name: "아연", cat: "transition", group: 12, period: 4 },
+            { n: 31, s: "Ga", name: "갈륨", cat: "metal", group: 13, period: 4 },
+            { n: 32, s: "Ge", name: "게르마늄", cat: "metalloid", group: 14, period: 4 },
+            { n: 33, s: "As", name: "비소", cat: "metalloid", group: 15, period: 4 },
+            { n: 34, s: "Se", name: "셀레늄", cat: "nonmetal", group: 16, period: 4 },
+            { n: 35, s: "Br", name: "브로민", cat: "halogen", group: 17, period: 4 },
+            { n: 36, s: "Kr", name: "크립톤", cat: "noble", group: 18, period: 4 }
+        ];
+
+        function initTable() {
+            const container = document.getElementById('periodicTable');
+            for (let p = 1; p <= 4; p++) {
+                for (let g = 1; g <= 18; g++) {
+                    const el = elements.find(e => e.group === g && e.period === p);
+                    const div = document.createElement('div');
+                    if (el) {
+                        div.className = `element-box color-${el.cat}`;
+                        div.innerHTML = `<span class="element-num">${el.n}</span><span class="element-symbol">${el.s}</span>`;
+                        div.onclick = () => showInfo(el);
+                    } else {
+                        div.className = 'element-box color-empty';
+                    }
+                    container.appendChild(div);
+                }
+            }
+        }
+
+        function showInfo(el) {
+            const modal = document.getElementById('elementModal');
+            const content = document.getElementById('modalContent');
+            const categories = {
+                "alkali": "알칼리 금속",
+                "alkaline-earth": "알칼리 토금속",
+                "transition": "전이 금속",
+                "metalloid": "준금속",
+                "halogen": "할로젠",
+                "noble": "비활성 기체",
+                "metal": "기타 금속",
+                "nonmetal": "기타 비금속"
+            };
+
+            content.innerHTML = `
+                <div class="text-center mb-6">
+                    <span class="text-6xl font-black text-gray-800 dark:text-gray-100">${el.s}</span>
+                    <h4 class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">${el.name}</h4>
+                    <p class="text-gray-400">원자번호 ${el.n}번 | ${el.period}주기 ${el.group}족</p>
+                </div>
+                <div class="space-y-4">
+                    <div class="flex justify-between border-b dark:border-slate-700 pb-2">
+                        <span class="text-gray-500 dark:text-gray-400">분류</span>
+                        <span class="font-bold dark:text-gray-200">${categories[el.cat]}</span>
+                    </div>
+                    <div class="flex justify-between border-b dark:border-slate-700 pb-2">
+                        <span class="text-gray-500 dark:text-gray-400">원자가 전자</span>
+                        <span class="font-bold dark:text-gray-200">${el.group === 18 ? '0 (또는 8)' : (el.group > 10 ? el.group - 10 : el.group)}개</span>
+                    </div>
+                </div>
+            `;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('elementModal').style.display = 'none';
+        }
+
+        // Theme Toggle Logic
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            document.documentElement.classList.remove('dark');
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        themeToggleBtn.addEventListener('click', function() {
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+        });
+
+        window.onload = initTable;
+    </script>
+</body>
+</html>
