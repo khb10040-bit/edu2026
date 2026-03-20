@@ -28,7 +28,7 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
         }
 
-        /* 18열 표준 주기율표 그리드 */
+        /* 18-column standard periodic table grid */
         .element-grid {
             display: grid;
             grid-template-columns: repeat(18, minmax(40px, 1fr));
@@ -69,7 +69,7 @@
             margin-top: 4px;
         }
 
-        /* 주기율표 카테고리별 색상 (라이트 모드) */
+        /* Periodic table category colors (Light Mode) */
         .color-alkali { background-color: #f87171; color: white; }
         .color-alkaline-earth { background-color: #fb923c; color: white; }
         .color-transition { background-color: #cbd5e1; color: #334155; }
@@ -80,7 +80,7 @@
         .color-nonmetal { background-color: #4ade80; color: white; }
         .color-empty { background-color: transparent; border: none; cursor: default; }
 
-        /* 다크 모드 시 원소 박스 미세 조정 */
+        /* Dark mode element box adjustments */
         .dark .element-box { border-color: rgba(255,255,255,0.1); }
         .dark .color-transition { background-color: #334155; color: #cbd5e1; }
         .dark .color-empty { background-color: transparent; }
@@ -131,14 +131,18 @@
         <p class="text-xl md:text-2xl max-w-3xl mx-auto opacity-90 mb-10">
             현대 주기율표의 구조를 통해 원소들이 가진 놀라운 규칙성을 발견해 봅시다.
         </p>
-        <div class="flex justify-center gap-4">
+        <div class="flex flex-wrap justify-center gap-4">
             <a href="#periodic" class="bg-white text-blue-700 px-8 py-3 rounded-full font-bold text-lg hover:bg-blue-50 transition-colors shadow-lg dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500">
                 주기율표 탐색
+            </a>
+            <!-- New Button Added Here -->
+            <a href="./02./index.html" class="bg-emerald-500 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-emerald-600 transition-colors shadow-lg">
+                윤리 배우기
             </a>
         </div>
     </header>
 
-    <!-- 1. 원소의 기원 -->
+    <!-- 1. Origin of Elements -->
     <section id="origin" class="py-16 max-w-7xl mx-auto px-4">
         <div class="text-center mb-12">
             <h2 class="text-3xl font-bold mb-4">1. 원소의 탄생 배경</h2>
@@ -160,7 +164,7 @@
         </div>
     </section>
 
-    <!-- 2. 인터렉티브 주기율표 -->
+    <!-- 2. Interactive Periodic Table -->
     <section id="periodic" class="py-20 bg-gray-100 dark:bg-slate-800/50 transition-colors">
         <div class="max-w-7xl mx-auto px-4">
             <div class="text-center mb-12">
@@ -174,7 +178,7 @@
                     <!-- JS logic will populate this -->
                 </div>
                 
-                <!-- 범례 (Legend) -->
+                <!-- Legend -->
                 <div class="mt-10 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 text-xs font-medium">
                     <div class="flex items-center"><span class="w-4 h-4 color-alkali mr-2 rounded shadow-sm"></span>알칼리 금속</div>
                     <div class="flex items-center"><span class="w-4 h-4 color-alkaline-earth mr-2 rounded shadow-sm"></span>알칼리 토금속</div>
@@ -189,7 +193,7 @@
         </div>
     </section>
 
-    <!-- 3. 주요 원소군 -->
+    <!-- 3. Key Element Groups -->
     <section id="groups" class="py-20 max-w-7xl mx-auto px-4">
         <div class="grid md:grid-cols-2 gap-8">
             <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-lg border-t-8 border-red-400 transition-colors">
@@ -225,7 +229,7 @@
     </div>
 
     <script>
-        // 원소 데이터 1~36
+        // Element Data 1~36
         const elements = [
             { n: 1, s: "H", name: "수소", cat: "nonmetal", group: 1, period: 1 },
             { n: 2, s: "He", name: "헬륨", cat: "noble", group: 18, period: 1 },
